@@ -18,7 +18,7 @@ interface Config{
     insidePadding?: number
     bgColor?: string
     textPadding?: number
-    newsListMargin?: number
+    newsListMarginTop?: number
     fontFamily?: string
     outDir?: string
     outType?: "file" | "buffer" | "base64"
@@ -27,13 +27,14 @@ export default class DrawNews {
     newsList: string[][] = []
     ctx: any
     canvas: any
-
+    
+    bgColor: string = ""
     textHeight: number = 24
     width: number = 750 // 图片宽度
     padding: number = 25; // 内边距
     insidePadding: number = 25 //文字内边距
     textPadding: number = 10; // 多行文字上下边距
-    newsListMargin: number = 20; // 多条新闻上边距
+    newsListMarginTop: number = 20; // 多条新闻上边距
     top: number = this.padding + this.insidePadding
     outDir: string
     fontFamily: string = ``
@@ -50,9 +51,6 @@ export default class DrawNews {
         height: 250,
         bgColor: "#ec9bad"
     }
-    bgColor: string = "#e6e6e6"
-    headBgColor: string = "#ec9bad"
-    headFontSize: number = 100
     weekday: string[] = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     url: string = "https://www.zhihu.com/api/v4/columns/c_1261258401923026944/items?limit=1"
     constructor({
@@ -60,7 +58,7 @@ export default class DrawNews {
         padding = 25,
         insidePadding = 25,
         textPadding = 10,
-        newsListMargin = 20,
+        newsListMarginTop = 20,
         bgColor = "#e6e6e6",
         fontFamily = "",
         outType = "file",
@@ -89,7 +87,7 @@ export default class DrawNews {
         this.padding = padding
         this.insidePadding = insidePadding
         this.textPadding = textPadding
-        this.newsListMargin = newsListMargin
+        this.newsListMarginTop = newsListMarginTop
         this.outType = outType
         this.content = content
         this.outDir = outDir
@@ -171,7 +169,7 @@ export default class DrawNews {
         const ctx = resultCanvas.getContext("2d");
         ctx.fillStyle = this.bgColor
 
-        await ctx.fillRect(0,0,this.width,this.top)
+        await ctx.fillRect(0,0,this.width,this.top + this.insidePadding)
         await ctx.drawImage(this.canvas, 0, 0);
         ctx.strokeStyle = "#999";
         ctx.strokeRect(this.padding, this.padding,this.width - this.padding * 2, this.top - this.padding * 2 + this.insidePadding)
@@ -222,7 +220,7 @@ export default class DrawNews {
                 this.ctx.fillText(text, this.padding + this.insidePadding , this.top )
                 this.top += fix + this.textPadding
             }
-            this.top += this.newsListMargin
+            this.top += this.newsListMarginTop
         }
         return Promise.resolve()
     }
