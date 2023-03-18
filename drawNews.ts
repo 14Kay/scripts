@@ -27,7 +27,7 @@ export default class DrawNews {
     newsList: string[][] = []
     ctx: any
     canvas: any
-    
+
     bgColor: string = ""
     textHeight: number = 24
     width: number = 750 // 图片宽度
@@ -79,7 +79,7 @@ export default class DrawNews {
         if(!fontFamily || !fs.existsSync(fontFamily)){
             throw new Error(`没有在路径 '${fontFamily}' 找到字体`)
         }
-        if(!fs.existsSync(outDir)){
+        if(!fs.existsSync(outDir) && outType == "file"){
             throw new Error(`不是有效的输出路径`)
         }
         this.fontFamily = fontFamily
