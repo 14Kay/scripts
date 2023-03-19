@@ -2,7 +2,7 @@
  * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
  * @Author: 14K
  * @Date: 2023-03-19 00:32:38
- * @LastEditTime: 2023-03-19 12:52:05
+ * @LastEditTime: 2023-03-19 13:14:15
  * @LastEditors: 14K
  */
 import axios from "axios"
@@ -67,7 +67,7 @@ export default class DrawNews {
         insidePadding = 25,
         textPadding = 10,
         newsListMarginTop = 20,
-        bgColor = "#e6e6e6",
+        bgColor = "#f6f6f6",
         fontFamily = "",
         outType = "file",
         outDir = __dirname,
