@@ -2,7 +2,7 @@
  * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
  * @Author: 14K
  * @Date: 2023-03-19 00:32:38
- * @LastEditTime: 2023-03-19 12:49:33
+ * @LastEditTime: 2023-03-19 12:52:05
  * @LastEditors: 14K
  */
 import axios from "axios"
@@ -112,7 +112,7 @@ export default class DrawNews {
             height: 0,
         },...head}
         this.bgColor = bgColor
-        
+
         const date = new Date();
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -147,8 +147,11 @@ export default class DrawNews {
             ctx.closePath()
             ctx.stroke()
         }
+        if(this.head.fontFamily){
+            FontLibrary.use("headFont", this.head.fontFamily)
+        }
         // 画星期
-        this.ctx.font = `${this.head.fontSize}px "font"`
+        this.ctx.font = `${this.head.fontSize}px ${this.head.fontFamily ? "headFont":"font"}`
         const weekday = this.weekday[new Date().getDay()]
         this.ctx.textAlign = "center"
         this.ctx.fillStyle  = this.head.color || "#ffffff";
@@ -165,7 +168,7 @@ export default class DrawNews {
         this.top += height + this.insidePadding
     }
     async draw() {
-        await FontLibrary.use("font", this.fontFamily)
+        FontLibrary.use("font", this.fontFamily)
         if(this.head.height){
             this.drawHead()
         }
