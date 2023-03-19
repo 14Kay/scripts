@@ -2,11 +2,11 @@
  * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
  * @Author: 14K
  * @Date: 2023-03-19 00:32:38
- * @LastEditTime: 2023-03-19 12:07:25
+ * @LastEditTime: 2023-03-19 12:38:46
  * @LastEditors: 14K
  */
 import axios from "axios"
-import { Canvas, FontLibrary } from "skia-canvas"
+import { Canvas, FontLibrary,CanvasRenderingContext2D } from "skia-canvas"
 import fs from "fs"
 import path from "path"
 
@@ -26,18 +26,18 @@ interface Config{
     bgColor?: string
     textPadding?: number
     newsListMarginTop?: number
-    fontFamily?: string
+    fontFamily: string
     outDir?: string
     outType?: "file" | "buffer" | "base64"
 }
 export default class DrawNews {
+    width: number = 750 // 图片宽度
     newsList: string[][] = []
-    ctx: any
-    canvas: any
-
+    canvas: any = new Canvas(this.width,5000)
+    ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
     bgColor: string = ""
     textHeight: number = 24
-    width: number = 750 // 图片宽度
+   
     padding: number = 25; // 内边距
     insidePadding: number = 25 //文字内边距
     textPadding: number = 10; // 多行文字上下边距
@@ -115,8 +115,12 @@ export default class DrawNews {
         this.dateString = year + "-" + month + '-' + day;
     }
     drawHead(){
-        const height = this.head.height || 0
-        this.ctx.fillStyle = this.head.bgColor
+        let height = this.head.height || 0
+        const fontSize = this.head.fontSize || 100
+        if(height < fontSize){
+            height = fontSize + 50
+        }
+        this.ctx.fillStyle = this.head.bgColor || "#ec9bad"
         const rectWith = this.width - this.padding * 2 - this.insidePadding * 2
         this.ctx.fillRect(this.padding + this.insidePadding,this.padding + this.insidePadding,rectWith,height)
         const ctx = this.ctx
@@ -142,7 +146,7 @@ export default class DrawNews {
         this.ctx.font = `${this.head.fontSize}px "font"`
         const weekday = this.weekday[new Date().getDay()]
         this.ctx.textAlign = "center"
-        this.ctx.fillStyle  = this.head.color;
+        this.ctx.fillStyle  = this.head.color || "#ffffff";
         this.ctx.textBaseline = "middle"
         const middle = this.padding + this.insidePadding+ height /2
         this.ctx.fillText(weekday, this.width/2, middle)
@@ -156,16 +160,12 @@ export default class DrawNews {
         this.top += height + this.insidePadding
     }
     async draw() {
-        // init canvas
-        this.canvas = new Canvas(this.width, 5000)
-        this.ctx = this.canvas.getContext("2d");
         await FontLibrary.use("font", this.fontFamily)
-        this.ctx.gpu = false
         if(this.head.height){
             this.drawHead()
         }
         this.ctx.font = `${this.content.fontSize}px "font"`
-        this.ctx.fillStyle  = this.content.color;
+        this.ctx.fillStyle  = this.content.color || "#333333";
         this.ctx.textBaseline = 'top'
         this.ctx.textAlign = "left"
 
