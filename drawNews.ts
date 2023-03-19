@@ -2,7 +2,7 @@
  * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
  * @Author: 14K
  * @Date: 2023-03-19 00:32:38
- * @LastEditTime: 2023-03-19 12:38:46
+ * @LastEditTime: 2023-03-19 12:49:33
  * @LastEditors: 14K
  */
 import axios from "axios"
@@ -97,8 +97,13 @@ export default class DrawNews {
         this.textPadding = textPadding
         this.newsListMarginTop = newsListMarginTop
         this.outType = outType
-        this.content = content
         this.outDir = outDir
+        this.content = {...{
+            fontFamily :"",
+            color :"#333333",
+            fontSize: 24,
+        },...content}
+
         this.head = {...{
             fontFamily :"",
             color :"#ffffff",
@@ -107,11 +112,11 @@ export default class DrawNews {
             height: 0,
         },...head}
         this.bgColor = bgColor
+        
         const date = new Date();
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const day = date.getDate();
-
         this.dateString = year + "-" + month + '-' + day;
     }
     drawHead(){
