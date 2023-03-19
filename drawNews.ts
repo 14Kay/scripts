@@ -1,3 +1,10 @@
+/*
+ * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
+ * @Author: 14K
+ * @Date: 2023-03-19 00:32:38
+ * @LastEditTime: 2023-03-19 12:07:25
+ * @LastEditors: 14K
+ */
 import axios from "axios"
 import { Canvas, FontLibrary } from "skia-canvas"
 import fs from "fs"
@@ -52,6 +59,7 @@ export default class DrawNews {
         bgColor: "#ec9bad"
     }
     weekday: string[] = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+    dateString: string
     url: string = "https://www.zhihu.com/api/v4/columns/c_1261258401923026944/items?limit=1"
     constructor({
         width = 750,
@@ -99,6 +107,12 @@ export default class DrawNews {
             height: 0,
         },...head}
         this.bgColor = bgColor
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        this.dateString = year + "-" + month + '-' + day;
     }
     drawHead(){
         const height = this.head.height || 0
@@ -135,15 +149,9 @@ export default class DrawNews {
 
         // 画右下角日期
         this.ctx.font = `24px "font"`
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
         this.ctx.textAlign = "right"
         this.ctx.textBaseline = "bottom"
-        const dateString = year + "-" + month + '-' + day;
-        this.ctx.fillText(dateString, this.width - this.padding - this.insidePadding - 14, this.insidePadding + height + this.padding - 14)
-
+        this.ctx.fillText(this.dateString, this.width - this.padding - this.insidePadding - 14, this.insidePadding + height + this.padding - 14)
         // 完事之后更新新的高度
         this.top += height + this.insidePadding
     }
@@ -152,7 +160,7 @@ export default class DrawNews {
         this.canvas = new Canvas(this.width, 5000)
         this.ctx = this.canvas.getContext("2d");
         await FontLibrary.use("font", this.fontFamily)
-
+        this.ctx.gpu = false
         if(this.head.height){
             this.drawHead()
         }
@@ -162,10 +170,10 @@ export default class DrawNews {
         this.ctx.textAlign = "left"
 
         await this.getNewsList()
-        await this.drawText()
+        this.drawText()
 
         // 剪裁高度
-        const resultCanvas = new Canvas(this.width, this.top + this.insidePadding)
+        const resultCanvas: any = new Canvas(this.width, this.top + this.insidePadding)
         const ctx = resultCanvas.getContext("2d");
         ctx.fillStyle = this.bgColor
 
@@ -174,14 +182,12 @@ export default class DrawNews {
         ctx.strokeStyle = "#999";
         ctx.strokeRect(this.padding, this.padding,this.width - this.padding * 2, this.top - this.padding * 2 + this.insidePadding)
         if(this.outType == "file"){
-            const date = Math.ceil(new Date().getTime()/1000)
-            await resultCanvas.saveAs(path.join(this.outDir,`${date}.png`), {density:1})
-            return Promise.resolve(path.join(this.outDir,`${date}.png`))
+            await resultCanvas.saveAs(path.join(this.outDir,`${this.dateString}.png`), {density: 1})
+            return Promise.resolve(path.join(this.outDir,`${this.dateString}.png`))
         }else if(this.outType == "buffer"){
-            return await this.canvas.toBuffer('png')
-        }else if(this.outType == "base64"){
-            const buffer = this.canvas.toBuffer('png');
-            return Buffer.from(buffer, 'utf8').toString('base64')
+            return resultCanvas.toBufferSync('png')
+        }else{
+            return resultCanvas.toBufferSync('png').toString('base64')
         }
     }
     async getNewsList() {
@@ -193,7 +199,6 @@ export default class DrawNews {
             const textList = this.getWrapText(news)
             this.newsList.push(textList)
         }
-        return Promise.resolve()
     }
     // 计算换行文本 
     getWrapText(text = ""): string[] {
@@ -211,7 +216,7 @@ export default class DrawNews {
         txtList.push(str)
         return txtList;
     }
-    async drawText(){
+    drawText(){
         for(let index = 0;index< this.newsList.length;index++){
             for(let index2 = 0; index2 < this.newsList[index].length;index2++){
                 const text = this.newsList[index][index2]
@@ -222,6 +227,5 @@ export default class DrawNews {
             }
             this.top += this.newsListMarginTop
         }
-        return Promise.resolve()
     }
 }
