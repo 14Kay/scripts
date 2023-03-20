@@ -2,7 +2,7 @@
  * @Description: 坑了个大爹了，放Linux 画不出文字，找了一晚上bug 结果发现是`textBaseline`的锅
  * @Author: 14K
  * @Date: 2023-03-19 00:32:38
- * @LastEditTime: 2023-03-19 13:14:15
+ * @LastEditTime: 2023-03-20 14:29:22
  * @LastEditors: 14K
  */
 import axios from "axios"
@@ -34,6 +34,7 @@ export default class DrawNews {
     width: number = 750 // 图片宽度
     newsList: string[][] = []
     canvas: any = new Canvas(this.width,5000)
+    resultCanvas: any
     ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
     bgColor: string = ""
     textHeight: number = 24
@@ -119,6 +120,12 @@ export default class DrawNews {
         const day = date.getDate();
         this.dateString = year + "-" + month + '-' + day;
     }
+    get getBuffer(){
+        return this.resultCanvas.toBufferSync('png')
+    }
+    get getBase64(){
+        return this.resultCanvas.toBufferSync('png').toString('base64')
+    }
     drawHead(){
         let height = this.head.height || 0
         const fontSize = this.head.fontSize || 100
@@ -182,11 +189,12 @@ export default class DrawNews {
 
         // 剪裁高度
         const resultCanvas: any = new Canvas(this.width, this.top + this.insidePadding)
+        this.resultCanvas = resultCanvas
         const ctx = resultCanvas.getContext("2d");
         ctx.fillStyle = this.bgColor
 
-        await ctx.fillRect(0,0,this.width,this.top + this.insidePadding)
-        await ctx.drawImage(this.canvas, 0, 0);
+        ctx.fillRect(0,0,this.width,this.top + this.insidePadding)
+        ctx.drawImage(this.canvas, 0, 0);
         ctx.strokeStyle = "#999";
         ctx.strokeRect(this.padding, this.padding,this.width - this.padding * 2, this.top - this.padding * 2 + this.insidePadding)
         if(this.outType == "file"){
