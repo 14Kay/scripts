@@ -2,7 +2,7 @@
  * @Description: 图片转字符图片
  * @Author: 14K
  * @Date: 2023-04-27 22:29:18
- * @LastEditTime: 2023-04-27 23:11:55
+ * @LastEditTime: 2023-04-28 00:12:14
  * @LastEditors: 14K
  */
 import { writeFileSync } from 'fs';
@@ -80,7 +80,6 @@ function charArtToPNG(charArt: CharArt[], imageCanvas: Canvas): Buffer {
   charArt.forEach((item: CharArt) => {
     context.fillStyle = item.color;
     context.font = `${item.size}px 微软雅黑`;
-    console.log(context.measureText(item.char).width)
     context.fillText(item.char, item.x, item.y);
   });
 
